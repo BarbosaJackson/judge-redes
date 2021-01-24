@@ -17,20 +17,28 @@ def file_to_string(filename):
     pass
 
 def send_file(connection):
-    file_path = input('nome do arquivo: ')
-    if file_path =='quit':
-        connection.sendall(bytes(file_path, 'UTF-8'))
-        return -1
-    code = file_to_string(file_path)
-    if(code == "FNF"): 
-        print("Erro: Arquivo não encontrado, verifique se o arquivo existe")
-    else:
-        print('enviando arquivo...')
-        connection.sendall(bytes(code, 'UTF-8'))
-        print('arquivo enviado')
-    answer =  connection.recv(2048)
-    print(answer.decode())
-    return 0
+    print('[ 1 ] ver questões')
+    print('[ 2 ] enviar questão')
+    option = int(input('-> '))
+    if(option == 2):
+        file_path = input('nome do arquivo: ')
+        if file_path =='quit':
+            connection.sendall(bytes(file_path, 'UTF-8'))
+            return -1
+        code = file_to_string(file_path)
+        if(code == "FNF"): 
+            print("Erro: Arquivo não encontrado, verifique se o arquivo existe")
+        else:
+            print('enviando arquivo...')
+            connection.sendall(bytes(code, 'UTF-8'))
+            print('arquivo enviado')
+        answer =  connection.recv(2048)
+        print(answer.decode())
+        return 0
+    elif(option == 1):
+        connection.sendall(bytes('list-quests', 'UTF-8'))
+        answer = connection.recv(2048)
+        print(answer.decode())
 
 
 def receive(socket, is_connected):

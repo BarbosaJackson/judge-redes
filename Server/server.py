@@ -28,24 +28,40 @@ class Client(threading.Thread):
                 list_clients.remove(self)
                 break
             if data != "":
-            	filename = create_file(data)
-            	print(filename + ' recebido do cliente: #ID ' + str(self.id))
-            	question_name = ''
-            	extension = ''
-            	has_question_name = False
-            	for letter in filename:
-            		if not has_question_name:
-            			if letter == '.':
-            				has_question_name = True
-            			else:
-            				question_name += letter
-            		else:
-            			extension += letter
-            	judge.compile_file(question_name, extension)
-            	judge.run_test_case(question_name, extension)
-            	for client in list_clients:
-            		if client.id == self.id:
-            			client.socket.sendall(bytes(judge.compare_tests(question_name, extension), 'UTF-8'))
+                send_data = ''
+                if(data == 'list-quests'):
+                    send_data = ' link                                | nome                         | nome arquivo\n'
+                    send_data += '---------------------------------------------------------------------------------------\n'
+                    send_data += 'https://thehuxley.com/problem/2827  | Mineração                    | mineracao.cpp\n'
+                    send_data += 'https://thehuxley.com/problem/2935  | Alberto, o rato              | alberto.cpp\n'
+                    send_data += 'https://thehuxley.com/problem/2746  | A entidade e o boneco        | boneco.cpp\n'
+                    send_data += 'https://thehuxley.com/problem/144   | Álbum                        | album.cpp\n'
+                    send_data += 'https://thehuxley.com/problem/2402  | Avaliação financeira         | avaliacao.cpp\n'
+                else:
+                    questions = ['mineracao', 'alberto', 'boneco', 'album', 'avaliacao']
+                    filename = create_file(data)
+                    print(filename + ' recebido do cliente: #ID ' + str(self.id))
+                    question_name = ''
+                    extension = ''
+                    has_question_name = False
+                    for letter in filename:
+                        if not has_question_name:
+                            if letter == '.':
+                                has_question_name = True
+                            else:
+                                question_name += letter
+                        else:
+                            extension += letter
+                    if not question_name in questions:
+                        send_data = 'Erro: questão não cadastrada\n'
+                    else:
+                        judge.compile_file(question_name, extension)
+                        judge.run_test_case(question_name, extension)
+                        send_data = judge.compare_tests(question_name, extension)
+                        judge.clean(question_name, extension)
+                for client in list_clients:
+                    if client.id == self.id:
+                        client.socket.sendall(bytes(send_data, 'UTF-8'))
 
 def create_file(file):
 	has_filename = False
