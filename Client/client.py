@@ -11,10 +11,9 @@ def file_to_string(filename):
         for line in lines:
             code += line + '\n'
         file.close()
-    except FileNotFound:
+    except OSError:
         code = "FNF"
     return code
-    pass
 
 def send_file(connection):
     print('[ 1 ] ver questões')
@@ -28,6 +27,7 @@ def send_file(connection):
         code = file_to_string(file_path)
         if(code == "FNF"): 
             print("Erro: Arquivo não encontrado, verifique se o arquivo existe")
+            return -1
         else:
             print('enviando arquivo...')
             connection.sendall(bytes(code, 'UTF-8'))
